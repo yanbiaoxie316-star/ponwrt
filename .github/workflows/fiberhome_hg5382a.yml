@@ -48,5 +48,5 @@ jobs:
       - name: 上传固件Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: PonWrt-Firmware
-          path: PonWrt/bin/targets/**/*.bin
+          name: fiberhome_hg5382a-PonWrt-Firmware
+          path: bin/targets/airoha/an7581
