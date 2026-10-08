@@ -1,4 +1,4 @@
-name: fiberhome_hg5382a PonWrt
+name: Build PonWrt
 on:
   workflow_dispatch: # 手动触发，网页点Run workflow
 
@@ -7,7 +7,12 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: 拉取代码
-        uses: actions/checkout@v4
+        uses: actions/cache@v4
+        with:
+          path: dl
+          key: ponwrt-dl-${{ matrix.target }}-${{ hashFiles('feeds.conf.default', 'configs/*.config') }}
+          restore-keys: |
+            ponwrt-dl-${{ matrix.target }}-
 
       - name: 安装编译依赖
         run: |
@@ -25,11 +30,11 @@ jobs:
       - name: 克隆 PonWrt 源码
         run: |
           git clone https://github.com/pbs05/ponwrt.git
-          cd PonWrt
+          cd ponwrt
 
       - name: Feeds更新 & 导入配置
         run: |
-          cd PonWrt
+          cd ponwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           cp configs/an7581.config .config
@@ -37,16 +42,16 @@ jobs:
 
       - name: 预下载源码包
         run: |
-          cd PonWrt
+          cd ponwrt
           make download -j$(nproc)
 
       - name: 编译固件
         run: |
-          cd PonWrt
+          cd ponwrt
           make -j$(nproc) V=s
 
       - name: 上传固件Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: fiberhome_hg5382a-PonWrt-Firmware
+          name: fiberhome_hg5382a
           path: bin/targets/airoha/an7581
