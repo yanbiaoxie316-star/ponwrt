@@ -43,7 +43,7 @@ jobs:
           cd PonWrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          cp ../pon_${{ github.event.inputs.device }}.config .config
+          cp configs/an7581.config .config
           make defconfig
 
       - name: 预下载源码
