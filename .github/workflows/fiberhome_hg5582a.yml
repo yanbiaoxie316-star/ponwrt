@@ -1,4 +1,4 @@
-name: Build PonWrt fiberhome_hg5382a
+name: Build PonWrt fiberhome_hg5582a
 on:
   workflow_dispatch: # 手动触发，网页点Run workflow
 
