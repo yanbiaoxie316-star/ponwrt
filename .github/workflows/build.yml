@@ -43,7 +43,7 @@ jobs:
           cd PonWrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          cp configs/an7581.config .config
+          cp cp ../pon_${{ github.event.inputs.device }}.config .config
           make defconfig
 
       - name: 预下载源码
@@ -60,4 +60,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PonWrt-${{ github.event.inputs.device }}
-          path: PonWrt/bin/targets/airoha/an7581/fiberhome_hg5382a.bin
+          path: PonWrt/bin/targets/**/*.bin
