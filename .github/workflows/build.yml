@@ -1,0 +1,63 @@
+name: Build PonWrt MultiDevice
+on:
+  workflow_dispatch:
+    inputs:
+      device:
+        description: 选择光猫型号
+        required: true
+        default: fiberhome_hg5382a
+        type: choice
+        options:
+          - fiberhome_hg5382a
+          - fiberhome_hg5582a
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout 编译仓库
+        uses: actions/checkout@v4
+
+      - name: 安装依赖
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential flex bison g++ gawk gcc-multilib g++-multilib \
+          gettext git libncurses5-dev libssl-dev python3 python3-pip unzip wget curl rsync \
+          locales ca-certificates zlib1g-dev libelf-dev
+          sudo locale-gen en_US.UTF-8
+          export LANG=en_US.UTF-8
+
+      - name: Cache dl
+        uses: actions/cache@v4
+        with:
+          path: PonWrt/dl
+          key: ${{ github.run_id }}-${{ github.event.inputs.device }}
+
+      - name: 拉取pbs05 ponwrt源码
+        run: |
+          git clone https://github.com/pbs05/ponwrt.git PonWrt
+          cd PonWrt
+
+      - name: Feeds + 导入对应机型配置
+        run: |
+          cd PonWrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          cp ../pon_${{ github.event.inputs.device }}.config .config
+          make defconfig
+
+      - name: 预下载源码
+        run: |
+          cd PonWrt
+          make download -j2
+
+      - name: 编译固件
+        run: |
+          cd PonWrt
+          make -j2 V=s
+
+      - name: 上传固件
+        uses: actions/upload-artifact@v4
+        with:
+          name: PonWrt-${{ github.event.inputs.device }}
+          path: PonWrt/bin/targets/airoha/an7581/fiberhome_hg5382a.bin
